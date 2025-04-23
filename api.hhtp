@@ -1,2 +1,0 @@
-
-POST http://localhost:8000/products/ HTTP/1.1

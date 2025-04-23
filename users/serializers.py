@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, Skill
 
 class UserSerializer(serializers.ModelSerializer):
     # username = serializers.CharField(max_length=100)
@@ -22,3 +22,15 @@ class RegisterSerializer(serializers.ModelSerializer):
             email = validated_data['email']
         )
         return user
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields =  ['username', 'email', 'id']
+    
+class SkillSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True) 
+    class Meta:
+        model = Skill
+        # fields = '__all__'
+        fields = ['id', 'name', 'description', 'created', 'user']
