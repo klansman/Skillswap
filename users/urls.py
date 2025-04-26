@@ -1,16 +1,18 @@
 from django.urls import path, include
 from . import views
-from .views import SkillViewSet
+# from .views import SkillViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import SimpleRouter
 
-router = SimpleRouter()
-router.register(r'skills', views.SkillViewSet, basename='skills')
+# router = SimpleRouter() #for modelviewset
+# router.register(r'skills', views.SkillViewSet, basename='skills')
 
 urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(), name = 'token_obtain_pair'),
+    path('skills/', views.SkillsListCreateAPIView.as_view(), name='skills_list_craeate'),
+    path('skills/<int:pk>/',views.SkillsDetailAPIView.as_view(), name='skill_detail'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', views.ProfileView.as_view(), name='profile'),
-    path('', include(router.urls)),
+    # path('', include(router.urls)),
 ]
