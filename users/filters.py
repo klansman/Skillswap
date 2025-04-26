@@ -6,3 +6,4 @@ class SkillFilter(filters.FilterSet):
     class Meta:
         model = Skill
         fields = ['name_contains']
+

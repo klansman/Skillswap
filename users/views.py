@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer
 from users.models import CustomUser, Skill
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import SkillFilter
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 class RegisterView(generics.CreateAPIView):
@@ -19,12 +20,16 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
     
-
+class SkillPagination(PageNumberPagination):
+    page_size = 10
 class SkillsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = SkillSerializer
     queryset = Skill.objects.all()
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = SkillFilter
+    pagination_class = SkillPagination
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created']
 
     def get_permissions(self):
         self.permission_classes = [AllowAny]
