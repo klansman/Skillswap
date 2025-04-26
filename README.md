@@ -1,6 +1,6 @@
 # Skillswap
 
-🔥 Grand Project Idea: “SkillSwap” – A Peer-to-Peer Skill Trading Platform
+🔥 Project Idea: “SkillSwap” – A Peer-to-Peer Skill Trading Platform
 Concept:
 A platform where users can offer a skill (e.g. guitar lessons, coding help, graphic design) and request a skill in return — no money involved, just fair trades.
 
@@ -26,7 +26,7 @@ B can accept, reject, or propose a counter-offer
 Real-time status updates
 
 4. Messaging (Bonus with Channels or API-only)
-   Optional lightweight messaging system between users once matched
+   lightweight messaging system between users once matched
 
 5. Rating System
    After a trade, users can rate each other and leave feedback
@@ -41,8 +41,8 @@ View overall system analytics
 Tech Stack
 Backend: Django + Django REST Framework (JWT auth, viewsets, permissions, etc.)
 
-Frontend: Optional — React or simple HTML templates, or just Postman testing
+Frontend: — React or simple HTML templates, or just Postman testing
 
-Database: PostgreSQL or SQLite
+Database:  SQLite
 
 Deployment: Render, Heroku, or Railway
