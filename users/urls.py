@@ -14,5 +14,6 @@ urlpatterns = [
     path('skills/<int:pk>/',views.SkillsDetailAPIView.as_view(), name='skill_detail'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', views.ProfileView.as_view(), name='profile'),
+    path('swap-request/', views.SwapRequestAPIView.as_view(), name='swap_request'),
     # path('', include(router.urls)),
 ]

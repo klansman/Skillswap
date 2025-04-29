@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer
-from users.models import CustomUser, Skill
+from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer
+from users.models import CustomUser, Skill, SwapRequest
 from rest_framework import generics, viewsets, filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -48,6 +48,18 @@ class SkillsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['DELETE', 'PATCH', 'PUT']:
             self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
+    
+class SwapRequestAPIView(generics.ListCreateAPIView):
+    serializer_class = SwapRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SwapRequest.objects.filter(receiver=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+
+
 
 # class SkillViewSet(viewsets.ModelViewSet):
 #     serializer_class = SkillSerializer
