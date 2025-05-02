@@ -43,9 +43,8 @@ class SwapRequestSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'sender', 'created_at', 'receiver', 'sender_skill', 'receiver_skill', 'status']
         model = SwapRequest
-        read_only_fields = ['sender', 'status', 'created_at']
+        read_only_fields = ['sender', 'receiver', 'sender_skill', 'receiver_skill']
 
-    # 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -58,16 +57,17 @@ class SwapRequestSerializer(serializers.ModelSerializer):
 
             # Safely access incoming data
             receiver_id = request.data.get('receiver')
+            print(receiver_id)
             if receiver_id:
                 try:
-                    self.fields['receiver_skill'].queryset = Skill.objects.filter(user_id=int(receiver_id))
+                    self.fields['receiver_skill'].queryset = Skill.objects.filter(user_id=str(receiver_id))
                 except (ValueError, TypeError):
                     self.fields['receiver_skill'].queryset = Skill.objects.none()
             else:
                 self.fields['receiver_skill'].queryset = Skill.objects.none()
         else:
             self.fields['receiver_skill'].queryset = Skill.objects.none()
-
+        
 
     def validate(self, attrs):
         """

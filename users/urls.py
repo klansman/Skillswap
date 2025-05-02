@@ -15,5 +15,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', views.ProfileView.as_view(), name='profile'),
     path('swap-request/', views.SwapRequestAPIView.as_view(), name='swap_request'),
+    path('my-swaps/', views.MySwapRequestView.as_view(), name='my-swaps'),
+    path('respond-swap/<str:pk>/', views.RespondToSwapRequestView.as_view(), name='respond-swap'),
     # path('', include(router.urls)),
 ]

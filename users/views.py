@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+# from users import serializers
 from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer
 from users.models import CustomUser, Skill, SwapRequest
 from rest_framework import generics, viewsets, filters
@@ -6,7 +7,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import SkillFilter
 from rest_framework.pagination import PageNumberPagination
-
+from django .db.models import Q
 # Create your views here.
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -58,6 +59,40 @@ class SwapRequestAPIView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
+
+class MySwapRequestView(generics.ListAPIView):
+    serializer_class = SwapRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        swaps = SwapRequest.objects.filter(receiver=self.request.user) | SwapRequest.objects.filter(sender=self.request.user)
+        return swaps
+    
+class RespondToSwapRequestView(generics.RetrieveUpdateAPIView):
+    serializer_class = SwapRequestSerializer
+    queryset = SwapRequest.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SwapRequest.objects.filter(receiver=self.request.user)
+    
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        new_status = self.request.data.get('status')
+
+        if instance.status != 'pending':
+            raise serializers.ValidationError("You can only respond to pending swap requests.")
+
+        if new_status not in ['accepted', 'declined']:
+            raise serializers.ValidationError("Status must be 'accepted' or 'declined'.")
+
+        serializer.save(status=new_status)
+        return super().perform_update(serializer)
+    
+  
+
+
+
 
 
 
