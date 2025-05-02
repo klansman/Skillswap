@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-# from users import serializers
+from users import serializers
 from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer
 from users.models import CustomUser, Skill, SwapRequest
 from rest_framework import generics, viewsets, filters
