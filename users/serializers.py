@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Skill, SwapRequest
+from .models import CustomUser, Skill, SwapRequest, Notification
 
 class UserSerializer(serializers.ModelSerializer):
     # username = serializers.CharField(max_length=100)
@@ -43,7 +43,7 @@ class SwapRequestSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'sender', 'created_at', 'receiver', 'sender_skill', 'receiver_skill', 'status']
         model = SwapRequest
-        read_only_fields = ['sender', 'receiver', 'sender_skill', 'receiver_skill']
+        read_only_fields = ['sender', 'status', 'created_at']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,3 +81,9 @@ class SwapRequestSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("receiver skill must belong to the selected receiver.")
 
         return attrs
+    
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ['recipient', 'swap_request', 'message', 'created_at']
+        model = Notification
+

@@ -17,5 +17,6 @@ urlpatterns = [
     path('swap-request/', views.SwapRequestAPIView.as_view(), name='swap_request'),
     path('my-swaps/', views.MySwapRequestView.as_view(), name='my-swaps'),
     path('respond-swap/<str:pk>/', views.RespondToSwapRequestView.as_view(), name='respond-swap'),
+    path('notifications/', views.UserNotificationListView.as_view(), name='user-notifications'),
     # path('', include(router.urls)),
 ]

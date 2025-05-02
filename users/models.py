@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 from django.conf import settings
+from django.contrib.auth import get_user_model
 # Create your models here.
 
 class CustomUser(AbstractUser):
@@ -29,12 +30,13 @@ class SwapRequest (models.Model):
     def __str__(self):
         return f"{self.sender} wants to swap {self.sender_skill} with {self.receiver_skill} of {self.receiver}"
     
+User = get_user_model()
 class Notification(models.Model):
-    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField(blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     swap_request =models.ForeignKey(SwapRequest, on_delete=models.CASCADE)
 
     def __str__(self):
-        return super().__str__()
+        return f"To: {self.recipient.username} | Read: {self.is_read} | {self.message[:30]}..."

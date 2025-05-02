@@ -4,18 +4,10 @@ from django.conf import settings
 from .models import CustomUser, SwapRequest, Notification
 
 @receiver(post_save, sender=SwapRequest)
-def create_swaprequest_notification(sender, instance, created, **kwargs):
-    """
-    Creates a UserActivityLog entry when a new UserProfile is created.
-    """
+def create_swap_notification(sender, instance, created, **kwargs):
     if created:
         Notification.objects.create(
-            user=instance.user,
-            message = f"{instance.user.username} you have received a new swap Request"
-        )
-
-    else:
-        Notification.objects.update(
-            user = instance.user,
-            message = f"There has been an update on your swap request from {instance.user.username}"
+            recipient=instance.receiver,
+            message=f"{instance.sender.username} sent you a skill swap request.",
+            swap_request=instance
         )

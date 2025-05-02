@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from users import serializers
-from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer
-from users.models import CustomUser, Skill, SwapRequest
+from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer,NotificationSerializer
+from users.models import CustomUser, Skill, SwapRequest, Notification
 from rest_framework import generics, viewsets, filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -90,7 +90,12 @@ class RespondToSwapRequestView(generics.RetrieveUpdateAPIView):
         return super().perform_update(serializer)
     
   
+class UserNotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
 
 
 
