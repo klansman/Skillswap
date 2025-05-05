@@ -96,6 +96,14 @@ class UserNotificationListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+    
+class MarkNotificationReadView(generics.RetrieveUpdateAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient = self.request.user)
+    
 
 
 

@@ -84,6 +84,6 @@ class SwapRequestSerializer(serializers.ModelSerializer):
     
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['recipient', 'swap_request', 'message', 'created_at']
+        fields = ['id', 'recipient', 'swap_request', 'message', 'created_at', 'is_read']
         model = Notification
 
