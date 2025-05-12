@@ -30,7 +30,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
 class SkillSerializer(serializers.ModelSerializer):
     # user = CustomUserSerializer(read_only=True) 
-    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), default=serializers.CurrentUserDefault())
     # created_by = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     class Meta:
         model = Skill
@@ -38,14 +38,33 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description' ,'created', 'user']
 
 
+class SwapRespondSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ['id', 'sender', 'created_at', 'receiver', 'sender_skill', 'receiver_skill', 'status']
+        model = SwapRequest
+        read_only_fields = ['sender', 'created_at', 'receiver', 'sender_skill', 'receiver_skill']
+    def update(self, instance, validated_data):
+        old_status = instance.status #Get current status of the Swap from the DB
+        new_status = validated_data.get('status', old_status) #Checks if user is trying to change status, defaults to current status if not
+        allowed_transitions = { #Defines what transition are allowed, once accepted or rejected it cannot be changed anymore
+            'pending': ['accepted', 'rejected'],
+            'rejected' : [],
+            'accepted' : []
+        }
+        if new_status != old_status and new_status not in allowed_transitions.get(old_status, []):
+            raise serializers.ValidationError(f"Cannot change status from '{old_status}' to '{new_status}'")
+        else:
+            pass
+        return super().update(instance, validated_data)
 
+   
 class SwapRequestSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'sender', 'created_at', 'receiver', 'sender_skill', 'receiver_skill', 'status']
         model = SwapRequest
-        read_only_fields = ['sender', 'status', 'created_at']
+        read_only_fields = ['sender', 'status', 'created_at','id']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): #making each field to contain only the selected user skills
         super().__init__(*args, **kwargs)
 
         request = self.context.get('request')
@@ -82,8 +101,10 @@ class SwapRequestSerializer(serializers.ModelSerializer):
 
         return attrs
     
+    
+    
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['id', 'recipient', 'swap_request', 'message', 'created_at', 'is_read']
+        fields = ['id', 'recipient', 'message', 'created_at', 'is_read']
         model = Notification
 

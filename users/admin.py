@@ -25,7 +25,7 @@ def make_rejected(modeladmin, request, queryset):
 
 @admin.register(SwapRequest)
 class SwapRequestAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'receiver', 'sender_skill', 'receiver_skill', 'status', 'created_at')
+    list_display = ('sender', 'receiver', 'sender_skill', 'receiver_skill', 'status', 'created_at', 'counter_to')
     list_filter = ('status', 'created_at')
     search_fields = ('sender__username', 'receiver__username', 'sender_skill__name', 'receiver_skill__name')
     ordering = ('-created_at',)

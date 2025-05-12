@@ -7,3 +7,6 @@ class SkillFilter(filters.FilterSet):
         model = Skill
         fields = ['name_contains']
 
+class StatusFilter(filters.FilterSet):
+    status = filters.ChoiceFilter(choices=[('pending', 'Pending'), ('accepted', 'Accepted'),('rejected', 'Rejected')], field_name="status")
+

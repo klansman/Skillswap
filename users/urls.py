@@ -16,8 +16,10 @@ urlpatterns = [
     path('me/', views.ProfileView.as_view(), name='profile'),
     path('swap-request/', views.SwapRequestAPIView.as_view(), name='swap_request'),
     path('my-swaps/', views.MySwapRequestView.as_view(), name='my-swaps'),
-    path('respond-swap/<str:pk>/', views.RespondToSwapRequestView.as_view(), name='respond-swap'),
+    path('my-swaps/<str:pk>/', views.RespondToSwapRequestView.as_view(), name='respond-swap'),
     path('notifications/', views.UserNotificationListView.as_view(), name='user-notifications'),
     path('notifications/<str:pk>/',views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
+    path('my-swaps/counter/<str:pk>/', views.CounterOfferView.as_view(), name='counter-offer'),
+    path('my-swaps/counter/<str:pk>/respond', views.RespondToCounterOfferView.as_view(), name='counter-offer-response')
     # path('', include(router.urls)),
 ]

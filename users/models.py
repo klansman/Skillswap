@@ -24,7 +24,8 @@ class SwapRequest (models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recieved_requests')
     sender_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name='offering_skill')
     receiver_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name='recieving_skill')
-    status =  models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default='pending')
+    status =  models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected'), ('countered', 'Countered')], default='pending')
+    counter_to = models.ForeignKey('self', blank= True, null=True, on_delete=models.CASCADE, related_name='counter_offer')
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -36,7 +37,9 @@ class Notification(models.Model):
     message = models.TextField(blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    swap_request =models.ForeignKey(SwapRequest, on_delete=models.CASCADE)
+    swap_request =models.ForeignKey(SwapRequest, on_delete=models.CASCADE, null=False, blank=True)
+    
 
     def __str__(self):
         return f"To: {self.recipient.username} | Read: {self.is_read} | {self.message[:30]}..."
+    
