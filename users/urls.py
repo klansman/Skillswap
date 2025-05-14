@@ -19,7 +19,7 @@ urlpatterns = [
     path('my-swaps/<str:pk>/', views.RespondToSwapRequestView.as_view(), name='respond-swap'),
     path('notifications/', views.UserNotificationListView.as_view(), name='user-notifications'),
     path('notifications/<str:pk>/',views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
-    path('my-swaps/counter/<str:pk>/', views.CounterOfferView.as_view(), name='counter-offer'),
-    path('my-swaps/counter/<str:pk>/respond', views.RespondToCounterOfferView.as_view(), name='counter-offer-response')
+    path('my-swaps/<str:pk>/counter/', views.CounterOfferView.as_view(), name='counter-offer'),
+    path('my-swaps/<str:pk>/counter/respond/', views.RespondToCounterOfferView.as_view(), name='counter-offer-response')
     # path('', include(router.urls)),
 ]

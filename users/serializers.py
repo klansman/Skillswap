@@ -66,10 +66,9 @@ class SwapRequestSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs): #making each field to contain only the selected user skills
         super().__init__(*args, **kwargs)
-
         request = self.context.get('request')
-        if request:
-            user = request.user
+        user = request.user if request else None
+        if user:
             # Set sender and receiver querysets
             self.fields['receiver'].queryset = CustomUser.objects.exclude(id=user.id)
             self.fields['sender_skill'].queryset = Skill.objects.filter(user=user)
@@ -77,6 +76,14 @@ class SwapRequestSerializer(serializers.ModelSerializer):
             # Safely access incoming data
             receiver_id = request.data.get('receiver')
             print(receiver_id)
+            if not receiver_id:
+                counter_to_id = request.parser_context['kwargs'].get('pk')
+                try:
+                    from users.models import SwapRequest
+                    original_request =SwapRequest.objects.get(pk=counter_to_id)
+                    receiver_id = original_request.sender.id
+                except Exception:
+                    receiver_id =None
             if receiver_id:
                 try:
                     self.fields['receiver_skill'].queryset = Skill.objects.filter(user_id=str(receiver_id))
@@ -100,6 +107,49 @@ class SwapRequestSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("receiver skill must belong to the selected receiver.")
 
         return attrs
+    
+class CounterOfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwapRequest
+        fields = ['sender_skill', 'receiver_skill']
+        # sender and receiver are inferred; status is auto
+        extra_kwargs = {
+            'sender_skill': {'required': True},
+            'receiver_skill': {'required': True}
+        }
+
+    def validate(self, attrs):
+        request = self.context['request']
+        original_request = self.context.get('original_request')
+
+        sender = request.user
+        receiver = original_request.sender
+
+        sender_skill = attrs.get('sender_skill')
+        receiver_skill = attrs.get('receiver_skill')
+
+        # Validate skill ownership
+        if sender_skill.user != sender:
+            raise serializers.ValidationError("Selected sender_skill does not belong to you.")
+
+        if receiver_skill.user != receiver:
+            raise serializers.ValidationError("Selected receiver_skill does not belong to the original sender.")
+
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context['request']
+        original_request = self.context.get('original_request')
+
+        return SwapRequest.objects.create(
+            sender=request.user,
+            receiver=original_request.sender,
+            sender_skill=validated_data['sender_skill'],
+            receiver_skill=validated_data['receiver_skill'],
+            status='pending',
+            counter_to=original_request
+        )
+
     
     
     

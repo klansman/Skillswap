@@ -86,43 +86,81 @@ class RespondToSwapRequestView(generics.RetrieveUpdateAPIView):
         return SwapRequest.objects.filter(receiver=self.request.user)
 
 class CounterOfferView(generics.CreateAPIView):
-    serializer_class = serializers.SwapRequestSerializer
+    serializer_class = serializers.CounterOfferSerializer
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         counter_to_id = self.kwargs.get("pk")
+
         try:
             original_request = SwapRequest.objects.get(pk=counter_to_id)
         except SwapRequest.DoesNotExist:
             return Response({"detail": "Original swap request not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check validity of the original request
         if original_request.status != "pending":
             return Response({"detail": "Only pending requests can be countered."}, status=status.HTTP_400_BAD_REQUEST)
 
         if original_request.counter_to is not None:
             return Response({"detail": "You cannot counter a counter-offer."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if original_request.sender == self.request.user:
+        if original_request.sender == request.user:
             return Response({"detail": "You cannot counter your own request."}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Mark original request as countered
+        # Validate and save with context
+        serializer = self.get_serializer(data=request.data, context={
+            'request': request,
+            'original_request': original_request
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Mark original as countered
         original_request.status = "countered"
         original_request.save()
 
-    # Save new counter-offer
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-
-        new_data = serializer.data
-        original_data = SwapRequestSerializer(original_request).data
-
         return Response({
-        "message": "Counter-offer created successfully.",
-        "counter_offer": new_data,
-        "original_request": original_data
+            "message": "Counter-offer created successfully.",
+            "counter_offer": serializer.data,
         }, status=status.HTTP_201_CREATED)
+
+# class CounterOfferView(generics.CreateAPIView):
+#     serializer_class = serializers.SwapRequestSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def create(self, request, *args, **kwargs):
+#         counter_to_id = self.kwargs.get("pk")
+#         try:
+#             original_request = SwapRequest.objects.get(pk=counter_to_id)
+#         except SwapRequest.DoesNotExist:
+#             return Response({"detail": "Original swap request not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#     # Check validity of the original request
+#         if original_request.status != "pending":
+#             return Response({"detail": "Only pending requests can be countered."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         if original_request.counter_to is not None:
+#             return Response({"detail": "You cannot counter a counter-offer."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         if original_request.sender == self.request.user:
+#             return Response({"detail": "You cannot counter your own request."}, status=status.HTTP_400_BAD_REQUEST)
+
+#     # Mark original request as countered
+#         original_request.status = "countered"
+#         original_request.save()
+
+#     # Save new counter-offer
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+
+#         new_data = serializer.data
+#         original_data = SwapRequestSerializer(original_request).data
+
+#         return Response({
+#         "message": "Counter-offer created successfully.",
+#         "counter_offer": new_data,
+#         "original_request": original_data
+#         }, status=status.HTTP_201_CREATED)
     
 class RespondToCounterOfferView(APIView):
     permission_classes = [IsAuthenticated]
