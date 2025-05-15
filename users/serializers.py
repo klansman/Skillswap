@@ -150,11 +150,12 @@ class CounterOfferSerializer(serializers.ModelSerializer):
             counter_to=original_request
         )
 
-    
+    #Note that when countering offers sender becomes receiver and vise versa so the skill ids should also change respectively
     
     
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'recipient', 'message', 'created_at', 'is_read']
+        read_only_fields = ['id', 'recipient', 'message', 'created_at']
         model = Notification
 

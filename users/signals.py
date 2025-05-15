@@ -6,8 +6,14 @@ from .models import CustomUser, SwapRequest, Notification
 @receiver(post_save, sender=SwapRequest)
 def handle_swap_request_notifications(sender, instance, created, **kwargs):
     if created:
-        # Notify the receiver of a new request
-        Notification.objects.create(
+        # Notify the receiver of a new request       
+        if instance.counter_to:
+            Notification.objects.create(
+                recipient = instance.counter_to.sender,
+                message = f"You have received a counter offer from {instance.sender.username}"
+        )
+        else:
+            Notification.objects.create(
             recipient=instance.receiver,
             message=f"You have a new skill swap request from {instance.sender.username}.",
             swap_request=instance
