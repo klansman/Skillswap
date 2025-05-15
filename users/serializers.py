@@ -70,7 +70,7 @@ class SwapRequestSerializer(serializers.ModelSerializer):
         user = request.user if request else None
         if user:
             # Set sender and receiver querysets
-            self.fields['receiver'].queryset = CustomUser.objects.exclude(id=user.id)
+            # self.fields['receiver'].queryset = CustomUser.objects.exclude(id=user.id)
             self.fields['sender_skill'].queryset = Skill.objects.filter(user=user)
 
             # Safely access incoming data

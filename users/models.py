@@ -38,6 +38,8 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     swap_request =models.ForeignKey(SwapRequest, on_delete=models.CASCADE, null=False, blank=True)
+    # type = models.CharField(max_length=50, choices=[('new_request', 'New Request'), ('counter_offer', 'Counter Offer')], default=None, null=True, blank=True)
+    # related_swap = models.ForeignKey(SwapRequest, on_delete=models.CASCADE, null=True, blank=True, related_name = "related_swap")
     
 
     def __str__(self):
