@@ -33,4 +33,4 @@ class SwapRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('recipient', 'swap_request', 'created_at', 'is_read')
+    list_display = ('recipient', 'swap_request', 'created_at', 'is_read', 'type', 'related_swap')

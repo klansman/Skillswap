@@ -43,6 +43,44 @@ Backend: Django + Django REST Framework (JWT auth, viewsets, permissions, etc.)
 
 Frontend: — React or simple HTML templates, or just Postman testing
 
-Database:  SQLite
+Database: SQLite
 
 Deployment: Render, Heroku, or Railway
+
+'''
+Enhancement features:
+
+1.  ✅ Next Feature: Swap History & Threads
+    🔍 Goal:
+    Allow users to view:
+
+    All related swaps and counter offers
+
+    Which was accepted/rejected
+
+    What skill was offered and countered
+
+    🧩 Implementation Plan:
+    Threaded View
+
+    Create an endpoint that returns a list of:
+
+    The original swap request
+
+    Any counter offers referencing it
+
+    Their statuses and timestamps
+
+    Model Updates — Already done (counter_to relationship).
+
+    New API View
+
+    GET /api/swaps/{id}/thread/ — return the original + all related counter offers.
+
+    Optional Enhancements
+
+    Allow filtering swaps by status (accepted, pending, etc.)
+
+    Add flags like "is_counter_offer": true
+
+'''

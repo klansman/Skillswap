@@ -126,11 +126,15 @@ class CounterOfferView(generics.CreateAPIView):
   
 class RespondToCounterOfferView(APIView):
     permission_classes = [IsAuthenticated]
+    queryset = SwapRequest.objects.all()
+    serializer_class=serializers.SwapRespondSerializer
 
-    def post(self, request, pk):
+    def patch(self, request, pk):
         #get counter offer from swapRequest objects and check if counter offer exists
+        counter_offer_id = self.kwargs.get('pk')
         try:
-            counter_offer = SwapRequest.objects.get(pk=pk, counter_offer__isnull=False)
+            counter_offer = SwapRequest.objects.get(id=counter_offer_id, counter_to__isnull=False)
+            print(f"coounterId:{counter_offer.id}")
         except SwapRequest.DoesNotExist:
             return Response({"detail":"Counter_offer does not esxist"}, status=status.HTTP_404_NOT_FOUND)
         #Allow only pending counter-offers to be responded to.
@@ -144,11 +148,14 @@ class RespondToCounterOfferView(APIView):
         
         #Validate action — it must be either "accepted" or "rejected".
         action = request.data.get("action")
-        if action not in ["accepted", "rejected"]:
+        if action == "accept":
+            counter_offer.status = "accepted"
+        elif action == "reject":
+            counter_offer.status = "rejected"
+        else:
             return Response({"details": "Invalid action. Must be 'accepted' or 'rejected'."}, status=status.HTTP_400_BAD_REQUEST)
         #Update the counter-offer’s status accordingly.
-
-        counter_offer.status = action
+        # counter_offer.status = action
         counter_offer.save()
 
         return Response({
