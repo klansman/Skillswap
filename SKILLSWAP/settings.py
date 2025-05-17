@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s3zc)w0i_@-4vihl!467i#5bchry880&f=#!(=05!arm)_boz#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'users',
+    'channels',
+    
 ]
 
 MIDDLEWARE = [
@@ -72,6 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'SKILLSWAP.wsgi.application'
+ASGI_APPLICATION = 'SKILLSWAP.asgi.application'
 
 
 # Database
@@ -143,4 +146,10 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # for development/testing
+    }
 }
