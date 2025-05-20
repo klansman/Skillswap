@@ -46,4 +46,13 @@ class Notification(models.Model):
         return f"To: {self.recipient.username} | Read: {self.is_read} | {self.message[:30]}..."
     
 
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    swap_request = models.ForeignKey(SwapRequest, on_delete=models.CASCADE, related_name='messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
     

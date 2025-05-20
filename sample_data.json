@@ -1,20 +1,12 @@
 [
-  {
-    "model": "users.customuser",
-    "pk": 1,
-    "fields": {
-      "username": "user1",
-      "email": "user1@example.com",
-      "password": "pbkdf2_sha256$260000$testhash$password123"
-    }
-  },
+
   {
     "model": "users.customuser",
     "pk": 2,
     "fields": {
       "username": "user2",
       "email": "user2@example.com",
-      "password": "pbkdf2_sha256$260000$testhash$password123"
+      "password": "!qa@ws#ed"
     }
   },
   {
@@ -23,7 +15,7 @@
     "fields": {
       "username": "user3",
       "email": "user3@example.com",
-      "password": "pbkdf2_sha256$260000$testhash$password123"
+      "password": "!qa@ws#ed"
     }
   },
   {
@@ -32,7 +24,7 @@
     "fields": {
       "username": "user4",
       "email": "user4@example.com",
-      "password": "pbkdf2_sha256$260000$testhash$password123"
+      "password": "!qa@ws#ed"
     }
   },
   {
@@ -41,7 +33,7 @@
     "fields": {
       "username": "user5",
       "email": "user5@example.com",
-      "password": "pbkdf2_sha256$260000$testhash$password123"
+      "password": "!qa@ws#ed"
     }
   },
 
@@ -51,7 +43,7 @@
     "fields": {
       "name": "Python Programming",
       "description": "Backend Development",
-      "user": 1,
+      "user": 5,
       "created": "2023-04-28"
     }
   },
@@ -61,7 +53,7 @@
     "fields": {
       "name": "Django Expert",
       "description": "Building APIs",
-      "user": 1,
+      "user": 4,
       "created": "2023-04-28"
     }
   },
@@ -164,7 +156,7 @@
     "model": "users.swaprequest",
     "pk": 1,
     "fields": {
-      "sender": 1,
+      "sender": 5,
       "sender_skill": 1,
       "receiver": 2,
       "receiver_skill": 3,

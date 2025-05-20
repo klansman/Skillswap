@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser, Skill, SwapRequest, Notification
+from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     # username = serializers.CharField(max_length=100)
@@ -14,6 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'email', 'password']
+
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(

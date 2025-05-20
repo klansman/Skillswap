@@ -39,17 +39,17 @@ def swap_request_notification(sender, instance, created, **kwargs):
 
     # Avoid duplicate notifications for the same object and user
     if created:
-        Notification.objects.create(user=target_user, swap_request=instance, message="New swap request received.")
+        Notification.objects.create(recipient=target_user, swap_request=instance, message="New swap request received.")
     elif instance.status == 'accepted':
-        Notification.objects.create(user=target_user, swap_request=instance, message="Your request was accepted.")
+        Notification.objects.create(recipient=target_user, swap_request=instance, message="Your request was accepted.")
     elif instance.status == 'rejected':
-        Notification.objects.create(user=target_user, swap_request=instance, message="Your request was rejected.")
+        Notification.objects.create(recipient=target_user, swap_request=instance, message="Your request was rejected.")
     elif instance.status == 'countered':
-        Notification.objects.create(user=target_user, swap_request=instance, message="You received a counter offer.")
+        Notification.objects.create(recipient=target_user, swap_request=instance, message="You received a counter offer.")
 
     # Broadcast via WebSocket
     channel_layer = get_channel_layer()
-    notification = Notification.objects.filter(user=target_user).latest('timestamp')
+    notification = Notification.objects.filter(recipient=target_user).latest('created_at')
     serialized = NotificationSerializer(notification).data
 
     async_to_sync(channel_layer.group_send)(
