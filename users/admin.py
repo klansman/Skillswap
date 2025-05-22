@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, Skill, SwapRequest, Notification
+from .models import CustomUser, Skill, SwapRequest, Notification, Message
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -34,3 +34,7 @@ class SwapRequestAdmin(admin.ModelAdmin):
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('recipient', 'swap_request', 'created_at', 'is_read', 'swap_type', 'related_swap')
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'receiver', 'swap_request', 'content', 'timestamp')

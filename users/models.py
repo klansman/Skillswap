@@ -56,3 +56,5 @@ class Message(models.Model):
     class Meta:
         ordering = ['timestamp']
     
+    def __str__(self):
+        return f"From {self.sender} to {self.receiver} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"

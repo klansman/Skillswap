@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Skill, SwapRequest, Notification
+from .models import CustomUser, Skill, SwapRequest, Notification, Message
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -161,3 +161,11 @@ class NotificationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'recipient', 'message', 'created_at']
         model = Notification
 
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(source='sender.username')
+    receiver = serializers.ReadOnlyField(source='receiver.username')
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'receiver', 'swap_request', 'content', 'timestamp']
+        read_only_fields = ['sender', 'timestamp', 'receiver', 'id']
