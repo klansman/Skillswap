@@ -30,7 +30,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
     
 class SkillPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 5
 class SkillsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = SkillSerializer
     queryset = Skill.objects.all()
@@ -182,24 +182,20 @@ class MarkNotificationReadView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return Notification.objects.filter(recipient = self.request.user)
     
-# class MessageViewSet(viewsets.ModelViewSet):
-class MessageViewSet(generics.ListCreateAPIView):
+# class MessageViewSet(generics.ListCreateAPIView):
+class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    query_set = Message.objects.all()
+    pagination_class = SkillPagination
 
     def get_queryset(self):
-        swap_id = self.kwargs.get('pk')
-        print(swap_id)
+        if self.action == 'retrieve':
+            return Message.objects.all()
         return Message.objects.filter(
-            swap_request_id = swap_id,
             receiver = self.request.user 
         )| Message.objects.filter(
-            swap_request_id = swap_id,
             sender = self.request.user)
-    
-    # def get_queryset(self):
-    #     messages = Message.objects.filter(receiver=self.request.user) | Message.objects.filter(sender=self.request.user)
-    #     return messages
         
     def perform_create(self, serializer, *args, **kwargs):
         swap_request = serializer.validated_data['swap_request']
@@ -207,8 +203,8 @@ class MessageViewSet(generics.ListCreateAPIView):
         # Determine the receiver based on the swap request
         print(swap_request_id)
         try:
-            original_swap = SwapRequest.objects.get(pk=swap_request.id)
-            print(original_swap)
+            original_swap = SwapRequest.objects.get(pk=swap_request_id)
+            print(f"original_swap: {original_swap}")
 
         except SwapRequest.DoesNotExist:
             return Response({"detail": "Original swap request not found."}, status=status.HTTP_404_NOT_FOUND)

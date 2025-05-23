@@ -4,8 +4,8 @@ from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import SimpleRouter, DefaultRouter
 
-# router = SimpleRouter() #for modelviewset
-# router.register(r'message', views.MessageViewSet, basename='message')
+router = SimpleRouter() #for modelviewset
+router.register(r'message', views.MessageViewSet, basename='message')
 
 urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
@@ -21,7 +21,7 @@ urlpatterns = [
     path('notifications/<str:pk>/',views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
     path('my-swaps/<str:pk>/counter/', views.CounterOfferView.as_view(), name='counter-offer'),
     path('my-swaps/<str:pk>/counter/respond/', views.RespondToCounterOfferView.as_view(), name='counter-offer-response'),
-    path('messages/', views.MessageViewSet.as_view(), name='messages'),
-    path('messages/<str:pk>/', views.MessageViewSet.as_view(), name='message'),
-    # path('', include(router.urls)),
+    # path('messages/', views.MessageViewSet.as_view(), name='messages'),
+    # path('messages/<str:pk>/', views.MessageViewSet.as_view(), name='message'),
+    path('', include(router.urls)),
 ]
