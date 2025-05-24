@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
-from .models import SwapRequest, Notification
+from .models import SwapRequest, Notification, Message
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .serializers import NotificationSerializer
@@ -32,30 +32,56 @@ def create_notification(sender, instance, created, **kwargs):
         transaction.on_commit(notify)
 
 
+
+
+
 @receiver(post_save, sender=SwapRequest)
 def swap_request_notification(sender, instance, created, **kwargs):
-    # Determine who should receive this notification
-    target_user = instance.receiver if created else instance.sender if instance.status == 'countered' else instance.receiver
+    def notify():
+        # Determine who should receive this notification
+        target_user = instance.receiver if created else (
+            instance.sender if instance.status == 'countered' else instance.receiver
+        )
 
-    # Avoid duplicate notifications for the same object and user
-    if created:
-        Notification.objects.create(recipient=target_user, swap_request=instance, message="New swap request received.")
-    elif instance.status == 'accepted':
-        Notification.objects.create(recipient=target_user, swap_request=instance, message="Your request was accepted.")
-    elif instance.status == 'rejected':
-        Notification.objects.create(recipient=target_user, swap_request=instance, message="Your request was rejected.")
-    elif instance.status == 'countered':
-        Notification.objects.create(recipient=target_user, swap_request=instance, message="You received a counter offer.")
+        # Create appropriate message
+        if created:
+            message = "New swap request received."
+        elif instance.status == 'accepted':
+            message = "Your request was accepted."
+        elif instance.status == 'rejected':
+            message = "Your request was rejected."
+        elif instance.status == 'countered':
+            message = "You received a counter offer."
+        else:
+            return  # no notification needed
 
-    # Broadcast via WebSocket
-    channel_layer = get_channel_layer()
-    notification = Notification.objects.filter(recipient=target_user).latest('created_at')
-    serialized = NotificationSerializer(notification).data
+        # Create notification
+        notification = Notification.objects.create(
+            recipient=target_user,
+            swap_request=instance,
+            message=message
+        )
 
-    async_to_sync(channel_layer.group_send)(
-        f"user_{target_user.id}",
-        {
-            'type': 'notify',
-            'data': serialized
-        }
-    )
+        # Broadcast via WebSocket after transaction commits
+        channel_layer = get_channel_layer()
+        serialized = NotificationSerializer(notification).data
+
+        async_to_sync(channel_layer.group_send)(
+            f"user_{target_user.id}",
+            {
+                'type': 'notify',  # ✅ matches method in consumer.py
+                'data': serialized
+            }
+        )
+
+    transaction.on_commit(notify)
+
+@receiver(post_save, sender=Message)
+def notify_receiver_on_message(sender, instance, created, **kwargs):
+    def send_message():
+        if created:
+            Notification.objects.create(
+                user=instance.receiver,
+                message=f"New message from {instance.sender.username}"
+            )
+    transaction.on_commit(send_message)
