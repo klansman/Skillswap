@@ -219,5 +219,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
         
 
-
+class RatingCreateView(generics.CreateAPIView):
+    serializer_class = serializers.RatingSerializer
+    permission_classes = [IsAuthenticated]
         

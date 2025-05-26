@@ -21,5 +21,6 @@ urlpatterns = [
     path('notifications/<str:pk>/',views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
     path('my-swaps/<str:pk>/counter/', views.CounterOfferView.as_view(), name='counter-offer'),
     path('my-swaps/<str:pk>/counter/respond/', views.RespondToCounterOfferView.as_view(), name='counter-offer-response'),
+    path('ratings/', views.RatingCreateView.as_view(), name='rating-create'),
     path('', include(router.urls)),
 ]

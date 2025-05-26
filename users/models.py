@@ -8,6 +8,17 @@ from django.contrib.auth import get_user_model
 class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
     skills = models.CharField(max_length=255, blank=True)
+    # ratings = models.IntegerField(blank=True)
+    
+    def average_rating(self):
+        ratings = Rating.objects.filter(ratee=self)
+        if ratings.exists():
+            return round(sum(r.rating for r in ratings) / ratings.count(), 1)
+        return None
+
+    def ratings_count(self):
+        return self.rate_received.count()
+
 
 class Skill(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='skill_offered')
@@ -58,3 +69,16 @@ class Message(models.Model):
     
     def __str__(self):
         return f"From {self.sender} to {self.receiver} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+    
+class Rating(models.Model):
+    swap = models.ForeignKey(SwapRequest, on_delete=models.CASCADE, related_name='rated_swap')
+    rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rate_sent')
+    ratee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rate_received')
+    rating = models.IntegerField()
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['rating']
+    def __str__(self):
+        return f"Rating {self.rating} from {self.rater} to {self.ratee} on {self.swap}"

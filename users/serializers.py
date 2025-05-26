@@ -1,13 +1,21 @@
 from rest_framework import serializers
 from .models import CustomUser, Skill, SwapRequest, Notification, Message
+from users import models
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     # username = serializers.CharField(max_length=100)
-    # email = serializers.EmailField(blank = True)
+    get_average_rating = serializers.SerializerMethodField()
+    get_ratings_count = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'bio', 'skills']
+        fields = ['id', 'username', 'email', 'bio', 'skills', 'average_rating', 'ratings_count']
+
+    def get_average_rating(self, obj):
+        return obj.average_rating()
+    
+    def get_ratings_count(self, obj):
+        return obj.ratings_count()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only = True)
@@ -48,7 +56,8 @@ class SwapRespondSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         old_status = instance.status #Get current status of the Swap from the DB
         new_status = validated_data.get('status', old_status) #Checks if user is trying to change status, defaults to current status if not
-        allowed_transitions = { #Defines what transition are allowed, once accepted or rejected it cannot be changed anymore
+        allowed_transitions = { 
+            #Defines what transition are allowed, once accepted or rejected it cannot be changed anymore
             'pending': ['accepted', 'rejected'],
             'rejected' : [],
             'accepted' : []
@@ -169,3 +178,35 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ['id', 'sender', 'receiver', 'swap_request', 'content', 'timestamp']
         read_only_fields = ['sender', 'timestamp', 'receiver', 'id']
+
+class RatingSerializer(serializers.ModelSerializer):
+#Goal: Ensure users can only rate after a completed swap and can’t rate the same trade multiple times.
+    class Meta:
+        model = models.Rating
+        fields = ['id', 'rater', 'ratee', 'swap', 'rating', 'created_at']
+        read_only_fields = ['id', 'swap', 'rater']
+
+        #Get logged in user to be the rater and the swap
+        def validate(self, data):
+            swap = data['swap']
+            request_user = self.context['request'].user
+        #Check if swap has been completed ie accepted
+            if swap.status != 'accepted':
+                raise serializers.ValidationError("You can only rate swaps that have been accepted")
+
+        #Check if swap has been rated before
+            if models.Rating.objects.filter(swap=swap, rater=request_user).exists():
+                raise serializers.ValidationError ("This swap already has a rating")
+            
+        #Ensure users only rate swap they are part of
+            if request_user not in(swap.sender, swap.receiver):
+                raise serializers.ValidationError("You can only rate swaps that you are part of")
+        
+        def create(self, validated_data):
+            user = self.context['request'].user
+            swap = validated_data['swap']
+            validated_data['rater'] = user
+
+        # Automatically determine the ratee (opposite party in swap)
+            validated_data['ratee'] = swap.receiver if swap.sender == user else swap.sender
+            return super().create(validated_data)
