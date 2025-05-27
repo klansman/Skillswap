@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from users import serializers
 from users.serializers import UserSerializer, RegisterSerializer, SkillSerializer, SwapRequestSerializer,NotificationSerializer, MessageSerializer
-from users.models import CustomUser, Skill, SwapRequest, Notification, Message
+from users.models import CustomUser, Skill, SwapRequest, Notification, Message, Rating
 from rest_framework import generics, viewsets, filters
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -198,7 +198,6 @@ class MessageViewSet(viewsets.ModelViewSet):
             sender = self.request.user)
         
     def perform_create(self, serializer, *args, **kwargs):
-        swap_request = serializer.validated_data['swap_request']
         swap_request_id = self.kwargs.get('pk')
         # Determine the receiver based on the swap request
         print(swap_request_id)
@@ -219,7 +218,37 @@ class MessageViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
         
 
-class RatingCreateView(generics.CreateAPIView):
+class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RatingSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Rating.objects.all()
+
+    # def get_queryset(self):
+    #     if self.action == 'retrieve':
+    #         return Rating.objects.all()
+    #     return Rating.objects.filter(
+    #         ratee = self.request.user 
+    #     )| Rating.objects.filter(
+    #         rater = self.request.user)
+    
+    # def perform_create(self, serializer, *args, **kwargs):
+    #         swap = serializer.validated_data['swap']
+    #         swap_id = self.kwargs.get('pk')
+    #         user = serializer.context['request'].user
+    #         try:
+    #             swap_to_rate = SwapRequest.objects.get(pk=swap_id)
+               
+    #         except SwapRequest.DoesNotExist:
+                
+    #             return Response({"detail: Swap not found"},
+    #             status=status.HTTP_404_NOT_FOUND)
+            
+    #         serializer.validated_data['ratee'] = swap_to_rate.receiver if swap_to_rate.sender == user else swap_to_rate.sender
+
+    #         serializer.save(serializer.validated_data)
+    #         # return super().create(serializer.validated_data)
+
+    #         return Response({
+    #         "rating": serializers.RatingSerializer.data,
+    #     }, status=status.HTTP_200_OK)
         

@@ -184,11 +184,12 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Rating
         fields = ['id', 'rater', 'ratee', 'swap', 'rating', 'created_at']
-        read_only_fields = ['id', 'swap', 'rater']
+        read_only_fields = ['id', 'rater']
 
         #Get logged in user to be the rater and the swap
         def validate(self, data):
             swap = data['swap']
+            print(f"swap: {swap}")
             request_user = self.context['request'].user
         #Check if swap has been completed ie accepted
             if swap.status != 'accepted':
@@ -202,10 +203,12 @@ class RatingSerializer(serializers.ModelSerializer):
             if request_user not in(swap.sender, swap.receiver):
                 raise serializers.ValidationError("You can only rate swaps that you are part of")
         
+        
         def create(self, validated_data):
             user = self.context['request'].user
             swap = validated_data['swap']
             validated_data['rater'] = user
+            print(user.id)
 
         # Automatically determine the ratee (opposite party in swap)
             validated_data['ratee'] = swap.receiver if swap.sender == user else swap.sender
