@@ -81,7 +81,8 @@ def notify_receiver_on_message(sender, instance, created, **kwargs):
     def send_message():
         if created:
             Notification.objects.create(
-                user=instance.receiver,
+                recipient=instance.receiver,
+                swap_request=instance.swap_request,
                 message=f"New message from {instance.sender.username}"
             )
     transaction.on_commit(send_message)

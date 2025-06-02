@@ -190,20 +190,23 @@ class MessageViewSet(viewsets.ModelViewSet):
     pagination_class = SkillPagination
 
     def get_queryset(self):
+        user=self.request.user
         if self.action == 'retrieve':
             return Message.objects.all()
         return Message.objects.filter(
-            receiver = self.request.user 
+            receiver = user 
         )| Message.objects.filter(
-            sender = self.request.user)
+            sender = user)
         
     def perform_create(self, serializer, *args, **kwargs):
+        swap_request = serializer.validated_data["swap_request"]
         swap_request_id = self.kwargs.get('pk')
         # Determine the receiver based on the swap request
-        print(swap_request_id)
+        print(f" swapRequestID: {swap_request_id}")
         try:
-            original_swap = SwapRequest.objects.get(pk=swap_request_id)
+            original_swap = SwapRequest.objects.get(pk=swap_request.id)
             print(f"original_swap: {original_swap}")
+            print(f" swapRequestID: {swap_request_id}")
 
         except SwapRequest.DoesNotExist:
             return Response({"detail": "Original swap request not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -212,24 +215,47 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.save(sender=self.request.user, receiver=receiver)
 
         
-
-        return Response({
-            "message": MessageSerializer.data,
-        }, status=status.HTTP_200_OK)
-        
-
 class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RatingSerializer
     permission_classes = [IsAuthenticated]
     queryset = Rating.objects.all()
+    pagination_class = SkillPagination
 
-    # def get_queryset(self):
-    #     if self.action == 'retrieve':
-    #         return Rating.objects.all()
-    #     return Rating.objects.filter(
-    #         ratee = self.request.user 
-    #     )| Rating.objects.filter(
-    #         rater = self.request.user)
+    def get_queryset(self):
+        if self.action == 'retrieve':
+            return Rating.objects.all()
+        return Rating.objects.filter(
+            ratee = self.request.user
+        )| Rating.objects.filter(
+            rater = self.request.user)
+    
+    def perform_create(self, serializer, *args, **kwargs):
+        # swap_id = self.kwargs.get('pk')
+        swap_id = self.request.data.get('swap')
+        print(f"swapId: {swap_id}")
+        try:
+            swap_to_rate= SwapRequest.objects.get(pk=swap_id)
+            print(f"swap_to_rate: {swap_to_rate}")
+        except SwapRequest.DoesNotExist:
+            return Response({"detail": "Original swap request not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        ratee = swap_to_rate.receiver if swap_to_rate.sender==self.request.user else swap_to_rate.sender
+        serializer.save(rater=self.request.user, ratee=ratee)
+
+
+
+# class RatingViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.RatingSerializer
+#     permission_classes = [IsAuthenticated]
+#     # queryset = Rating.objects.all()
+
+#     def get_queryset(self):
+#         if self.action == 'GET':
+#             return Rating.objects.all()
+#         return Rating.objects.filter(
+#             ratee = self.request.user 
+#         )| Rating.objects.filter(
+#             rater = self.request.user)
     
     # def perform_create(self, serializer, *args, **kwargs):
     #         swap = serializer.validated_data['swap']
